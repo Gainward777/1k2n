@@ -1,7 +1,6 @@
 import argparse
 from pyexpat import features
 import torch
-import clip
 import os
 from PIL import Image
 import pickle as pk
@@ -12,15 +11,7 @@ import numpy as np
 import hnswlib
 
 
-def get_features(image, model, preprocess):       
-    #transforms the image, submits it to the model and returns the features
-    device="cuda" if torch.cuda.is_available() else "cpu"           
-    transformed_im =  preprocess(image).unsqueeze(0).to(device)
-    with torch.no_grad():
-        im_features = model.encode_image(transformed_im)
-        im_features /= im_features.norm(dim=-1, keepdim=True)
-    return im_features.cpu().numpy()
-        
+    
 
 def is_in_dict(name: str, features_dict: dict):
     #checks if a file exists in a directory
@@ -84,16 +75,6 @@ def get_same(querry, features_dict: dict):
 
     print(names_as_string[:-1])
     
-
-def get_features_by_str(querry: str, model):
-    #get features from str
-    device="cuda" if torch.cuda.is_available() else "cpu"
-    text_token=clip.tokenize([querry]).to(device)
-    with torch.no_grad():
-        text_features = model.encode_text(text_token)
-        text_features /= text_features.norm(dim=-1, keepdim=True)
-    return text_features.cpu().numpy()
-
 
 def open_dict(dict_adress: str):
     features_dict={}
